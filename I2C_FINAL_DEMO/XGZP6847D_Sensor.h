@@ -6,18 +6,18 @@
 #include "TCA9548A_Mux.h" // 依赖于Mux库
 
 // I2C 地址和寄存器定义
-#define XGZP6847D_ADDRESS       0x6D    // 传感器从地址 [cite: 426]
-#define REG_CMD                 0x30    // 命令寄存器 [cite: 502]
-#define REG_PRESSURE_MSB        0x06    // 压力数据 MSB [cite: 499]
-#define REG_TEMP_MSB            0x09    // 温度数据 MSB [cite: 499]
+#define XGZP6847D_ADDRESS       0x6D    // 传感器从地址
+#define REG_CMD                 0x30    // 命令寄存器
+#define REG_PRESSURE_MSB        0x06    // 压力数据 MSB
+#define REG_TEMP_MSB            0x09    // 温度数据 MSB
 
-// 组合采集命令：SCO=1, Measurement_ctrl=010b -> 0x0A [cite: 507, 504]
+// 组合采集命令：SCO=1, Measurement_ctrl=010b -> 0x0A
 #define CMD_START_COMBINED_MEAS 0x0A    
-// 状态位掩码：SCO位于Bit3 [cite: 499]
+// 状态位掩码：SCO位于Bit3
 #define STATUS_SCO_BIT          0x08    
 
 // 配置寄存器
-#define REG_P_CONFIG            0xA6    // 压力配置寄存器 [cite: 499]
+#define REG_P_CONFIG            0xA6    // 压力配置寄存器
 
 class XGZP6847D_Sensor {
 public:
