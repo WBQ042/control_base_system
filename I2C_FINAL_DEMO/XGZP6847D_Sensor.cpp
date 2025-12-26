@@ -29,12 +29,12 @@ bool XGZP6847D_Sensor::writeRegister(uint8_t reg, uint8_t data) {
 uint8_t XGZP6847D_Sensor::readRegister(uint8_t reg) {
   selectMuxChannel(); // 切换通道
 
-  // 1. 写寄存器地址 [cite: 445]
+  // 1. 写寄存器地址
   Wire.beginTransmission(XGZP6847D_ADDRESS);
   Wire.write(reg);
-  Wire.endTransmission(false); // 保持连接，进行Re-start [cite: 446]
+  Wire.endTransmission(false); // 保持连接，进行Re-start
 
-  // 2. 读取1个字节 [cite: 446]
+  // 2. 读取1个字节
   uint8_t receivedData = 0;
   if (Wire.requestFrom(XGZP6847D_ADDRESS, 1) == 1) {
     receivedData = Wire.read();
@@ -53,7 +53,7 @@ bool XGZP6847D_Sensor::begin() {
   Serial.println(") 初始化中...");
 
   // 目标：提高精度。配置 OSR_P<2:0> 为 110b (16384X)
-  // 寄存器 0xA6 P_config 的 Bit 2:0 为 OSR_P [cite: 499, 524]
+  // 寄存器 0xA6 P_config 的 Bit 2:0 为 OSR_P
   // 默认 P_config 的 Bit 5:3 Gain_P 为 000b (1X)，Bit 7:6 Input Swap 为 00b
   // [cite: 499, 522, 521]
 
@@ -72,7 +72,7 @@ bool XGZP6847D_Sensor::begin() {
 
 // 启动测量
 bool XGZP6847D_Sensor::startMeasurement() {
-  // 写入 0x0A 到 0x30 寄存器，启动组合测量 [cite: 532]
+  // 写入 0x0A 到 0x30 寄存器，启动组合测量
   return writeRegister(REG_CMD, CMD_START_COMBINED_MEAS);
 }
 
@@ -81,8 +81,8 @@ bool XGZP6847D_Sensor::readData(float &pressurePa, float &tempC) {
   // 1. 检查数据采集是否完成
   uint8_t status = readRegister(REG_CMD);
   if ((status & STATUS_SCO_BIT) > 0) {
-    // SCO = 1，采集未完成 [cite: 507]
-    // 规格书建议延迟 20ms 后再次检查或直接等待 [cite: 533]
+    // SCO = 1，采集未完成
+    // 规格书建议延迟 20ms 后再次检查或直接等待
     Serial.println("[XGZP6847D Warning] 数据未准备好，正在等待...");
 
     // 增加一个简单的忙等循环 (最多等待 100ms)
@@ -99,7 +99,7 @@ bool XGZP6847D_Sensor::readData(float &pressurePa, float &tempC) {
   // 2. 读取压力数据 (24-bit)
   selectMuxChannel();
   Wire.beginTransmission(XGZP6847D_ADDRESS);
-  Wire.write(REG_PRESSURE_MSB); // 从0x06开始 [cite: 534]
+  Wire.write(REG_PRESSURE_MSB); // 从0x06开始
   Wire.endTransmission(false);
 
   // 3. 读取3个压力字节 (0x06, 0x07, 0x08)
@@ -146,6 +146,7 @@ bool XGZP6847D_Sensor::readData(float &pressurePa, float &tempC) {
   // 5. 计算最终物理量
   // 补码逻辑下，正负数除法计算公式统一
   pressurePa = (float)pressure_adc_signed / _pressure_k;
+  pressurePa = pressurePa / 1000.0f;
   tempC = (float)temperature_adc_signed / 256.0f;
 
   return true;
